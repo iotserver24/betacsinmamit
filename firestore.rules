@@ -133,10 +133,11 @@ service cloud.firestore {
       }
       
       function isValidMembershipData(membership) {
-        return membership.keys().hasOnly(['status', 'type', 'expiresAt']) &&
+        return membership.keys().hasOnly(['status', 'type', 'expiresAt', 'startDate']) &&
                (membership.status == null || membership.status in ['active', 'inactive', 'expired', 'suspended']) &&
-               (membership.type == null || membership.type in ['core', 'member', 'premium', 'basic']) &&
-               (membership.expiresAt == null || membership.expiresAt is timestamp);
+               (membership.type == null || membership.type in ['core', 'member', 'premium', 'basic', 'one-year', 'two-year', 'three-year']) &&
+               (membership.expiresAt == null || membership.expiresAt is timestamp) &&
+               (membership.startDate == null || membership.startDate is timestamp);
       }
       
       function isValidProfileData(profile) {

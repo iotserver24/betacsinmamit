@@ -142,10 +142,10 @@ app.post('/webhook', async (req, res) => {
                     await userRef.set({
                         membership: {
                             status: 'active',
-                            planId: planId,
+                            type: planId, // Changed from 'planId' to 'type' to match frontend
                             startDate: admin.firestore.FieldValue.serverTimestamp(),
                             // Calculate end date: Yesterday + Plan Duration (Years)
-                            expiryDate: (() => {
+                            expiresAt: (() => { // Changed from 'expiryDate' to 'expiresAt' to match frontend
                                 const now = new Date();
                                 const yesterday = new Date(now);
                                 yesterday.setDate(yesterday.getDate() - 1);

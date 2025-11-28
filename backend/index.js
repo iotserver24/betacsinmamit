@@ -48,6 +48,19 @@ app.post('/create-order', async (req, res) => {
             return res.status(400).json({ error: 'Invalid plan selected' });
         }
 
+        // Check if user already has an active subscription
+        const userDoc = await db.collection('users').doc(userId).get();
+        if (userDoc.exists) {
+            const userData = userDoc.data();
+            if (userData.membership?.status === 'active') {
+                // Check if expired
+                const expiry = userData.membership.expiresAt?.toDate();
+                if (expiry && expiry > new Date()) {
+                    return res.status(400).json({ error: 'User already has an active subscription' });
+                }
+            }
+        }
+
         const plan = MEMBERSHIP_PLANS[planId];
         const amount = plan.price * 100; // Amount in paise
 
@@ -131,10 +144,18 @@ app.post('/webhook', async (req, res) => {
                             status: 'active',
                             planId: planId,
                             startDate: admin.firestore.FieldValue.serverTimestamp(),
-                            // Calculate end date based on plan duration (simplified)
-                            expiryDate: admin.firestore.Timestamp.fromDate(
-                                new Date(Date.now() + (planId === 'one-year' ? 365 : planId === 'two-year' ? 730 : 1095) * 24 * 60 * 60 * 1000)
-                            )
+                            // Calculate end date: Yesterday + Plan Duration (Years)
+                            expiryDate: (() => {
+                                const now = new Date();
+                                const yesterday = new Date(now);
+                                yesterday.setDate(yesterday.getDate() - 1);
+
+                                const durationYears = planId === 'one-year' ? 1 : planId === 'two-year' ? 2 : 3;
+                                const expiryDate = new Date(yesterday);
+                                expiryDate.setFullYear(expiryDate.getFullYear() + durationYears);
+
+                                return admin.firestore.Timestamp.fromDate(expiryDate);
+                            })()
                         },
                         role: 'EXECUTIVE MEMBER', // Or whatever role is appropriate
                         updatedAt: admin.firestore.FieldValue.serverTimestamp()

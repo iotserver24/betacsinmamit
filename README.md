@@ -7,6 +7,7 @@ A modern, feature-rich website for the Computer Society of India - NMAMIT Studen
 ## 🎨 **Modern Design Features**
 
 ### **Visual Effects**
+
 - **Glassmorphism Effects**: Beautiful glass-like UI components with backdrop blur
 - **Gradient Animations**: Smooth, eye-catching gradient transitions between colors
 - **Dark/Light Mode**: Seamless theme switching with system preference detection
@@ -15,6 +16,7 @@ A modern, feature-rich website for the Computer Society of India - NMAMIT Studen
 - **Parallax Effects**: 3D card effects and scroll animations for depth
 
 ### **Design System**
+
 - **Color Palette**:
   - Primary Blue: `#3b82f6`
   - Cyber Blue: `#00d4ff`
@@ -30,6 +32,7 @@ A modern, feature-rich website for the Computer Society of India - NMAMIT Studen
 ## 🎯 **Core Functionality Features**
 
 ### **1. Authentication System**
+
 - **Google Sign-in Integration**: Firebase Auth with Google OAuth
 - **Role-based Access Control**:
   - Regular Members
@@ -39,6 +42,7 @@ A modern, feature-rich website for the Computer Society of India - NMAMIT Studen
 - **Session Management**: Secure login/logout with state persistence
 
 ### **2. User Profile Management**
+
 - **Complete Profile System**: Academic details, contact info, bio
 - **Profile Completion Tracking**: Modal prompts for incomplete profiles
 - **Profile Editing**: Real-time updates with validation
@@ -46,6 +50,7 @@ A modern, feature-rich website for the Computer Society of India - NMAMIT Studen
 - **Core Member Profiles**: Enhanced profiles for core team members
 
 ### **3. Event Management System**
+
 - **Event Browsing**: Comprehensive event listing with categories
 - **Advanced Filtering**: Filter by year, type, category
 - **Search Functionality**: Real-time search across events
@@ -54,6 +59,7 @@ A modern, feature-rich website for the Computer Society of India - NMAMIT Studen
 - **Event Highlights**: Image gallery with lightbox functionality
 
 ### **4. Team Showcase**
+
 - **Faculty Profiles**: Complete faculty information with photos
 - **Student Team Display**: Core team members with roles and branches
 - **Dynamic Team Data**: Real-time updates from Firestore
@@ -61,6 +67,7 @@ A modern, feature-rich website for the Computer Society of India - NMAMIT Studen
 - **Profile Synchronization**: Auto-sync with user accounts
 
 ### **5. Membership System**
+
 - **Online Registration**: Complete registration flow
 - **Multiple Membership Plans**:
   - Annual Membership
@@ -71,6 +78,7 @@ A modern, feature-rich website for the Computer Society of India - NMAMIT Studen
 - **Membership Status Tracking**: Active/inactive status management
 
 ### **6. Payment Gateway**
+
 - **Razorpay Integration**: Secure payment processing
 - **Multiple Payment Methods**: Cards, UPI, Net Banking
 - **Payment Verification**: Backend verification system
@@ -80,6 +88,7 @@ A modern, feature-rich website for the Computer Society of India - NMAMIT Studen
 ## 🛠️ **Technical Stack**
 
 ### **Frontend Technologies**
+
 - **React 18**: Latest React with hooks and modern patterns
 - **Vite**: Fast build tool and development server
 - **Tailwind CSS**: Utility-first CSS framework
@@ -88,6 +97,7 @@ A modern, feature-rich website for the Computer Society of India - NMAMIT Studen
 - **Lucide React**: Modern icon library (replaced all emojis)
 
 ### **Backend & Services**
+
 - **Firebase Firestore**: NoSQL database for real-time data
 - **Firebase Auth**: Authentication and user management
 - **Firebase Storage**: File upload and storage
@@ -97,13 +107,16 @@ A modern, feature-rich website for the Computer Society of India - NMAMIT Studen
 ## 🛠️ **Installation & Setup**
 
 ### **Prerequisites**
+
 - Node.js (v16 or higher)
 - npm or yarn package manager
 - Firebase project setup
 - Razorpay account
 
 ### **Environment Configuration**
+
 Create a `.env` file in the root directory:
+
 ```env
 # Firebase Configuration
 VITE_FIREBASE_API_KEY=your-api-key
@@ -123,6 +136,7 @@ VITE_API_URL=http://localhost:3000/api
 ```
 
 ### **Development Commands**
+
 ```bash
 # Install dependencies
 npm install
@@ -138,13 +152,16 @@ npm run preview
 ```
 
 ### **Setup Steps**
+
 1. **Clone the repository**
+
 ```bash
 git clone <repository-url>
 cd betacsinmamit
 ```
 
 2. **Install dependencies**
+
 ```bash
 npm install
 ```
@@ -164,9 +181,27 @@ npm install
    - Fill in your Firebase and Razorpay credentials
 
 6. **Run the development server**
+
 ```bash
 npm run dev
 ```
+
+## 💳 **Razorpay Webhook Setup (Node.js Backend)**
+
+To enable automatic membership updates after payment, you must configure a webhook in your Razorpay dashboard.
+
+1. **Go to Razorpay Dashboard**: Navigate to **Settings** > **Webhooks**.
+2. **Add New Webhook**: Click on "+ Add New Webhook".
+3. **Webhook URL**: Enter your backend URL followed by `/webhook`.
+    - *Development*: Use a tool like ngrok to expose your local server (e.g., `https://your-ngrok-url.ngrok-free.app/webhook`).
+    - *Production*: `https://your-production-backend.com/webhook`
+4. **Secret**: Enter the secret key defined in your `backend/.env` file as `WEBHOOK_SECRET`.
+    - Example: `suckmydickbitch` (as seen in your env, but please use a secure random string in production!)
+5. **Active Events**: Select **`payment.captured`**.
+6. **Create Webhook**: Click "Create Webhook" to save.
+
+> [!IMPORTANT]
+> Ensure the `WEBHOOK_SECRET` in your `backend/.env` file matches exactly what you enter in the Razorpay dashboard. If they don't match, the backend will reject the webhook requests.
 
 ## 🔐 Payments Webhook (Optional Hardening)
 
@@ -181,10 +216,10 @@ Deploy steps:
 
 Function endpoint: `razorpayWebhook` (use the HTTPS URL from Firebase console). Configure this URL and secret in the Razorpay dashboard.
 
-
 ## 📱 **Page Structure & Navigation**
 
 ### **Public Pages**
+
 1. **Home Page** (`/`):
    - Hero section with animated typing effect
    - About section with 3D card effects
@@ -211,6 +246,7 @@ Function endpoint: `razorpayWebhook` (use the HTTPS URL from Firebase console). 
    - Membership plans comparison
 
 ### **Protected Pages**
+
 1. **Profile Page** (`/profile`):
    - User dashboard
    - Profile editing
@@ -222,6 +258,7 @@ Function endpoint: `razorpayWebhook` (use the HTTPS URL from Firebase console). 
    - Special permissions and features
 
 ### **Admin Pages**
+
 1. **Admin Dashboard** (`/admin`):
    - Django-style admin interface
    - Statistics and analytics
@@ -250,12 +287,14 @@ Function endpoint: `razorpayWebhook` (use the HTTPS URL from Firebase console). 
 ## 🔧 **Key Components Architecture**
 
 ### **Layout Components**
+
 - **Navbar**: Modern navigation with glassmorphism effects
 - **Footer**: Comprehensive footer with newsletter signup
 - **ScrollToTop**: Smooth scroll to top functionality
 - **ParticlesBackground**: Interactive particle animation
 
 ### **Home Components**
+
 - **Hero**: Animated hero with typing effects
 - **About**: 3D card effects with tilt animations
 - **Features**: Technology showcase grid
@@ -264,6 +303,7 @@ Function endpoint: `razorpayWebhook` (use the HTTPS URL from Firebase console). 
 - **CTA**: Call-to-action with gradient background
 
 ### **UI Components**
+
 - **Glass Cards**: Backdrop blur effects
 - **Animated Buttons**: Hover states and transitions
 - **Custom Input Fields**: Icons and validation
@@ -273,12 +313,14 @@ Function endpoint: `razorpayWebhook` (use the HTTPS URL from Firebase console). 
 ## 🔐 **Security Features**
 
 ### **Authentication Security**
+
 - **Firebase Authentication**: Secure Google OAuth integration
 - **Protected Routes**: Role-based access control
 - **Session Management**: Automatic logout and session handling
 - **Admin Authentication**: Separate admin context for security
 
 ### **Data Security**
+
 - **Input Validation**: Comprehensive form validation
 - **Data Sanitization**: XSS and injection prevention
 - **Rate Limiting**: Payment attempt limiting
@@ -286,6 +328,7 @@ Function endpoint: `razorpayWebhook` (use the HTTPS URL from Firebase console). 
 - **Firestore Security Rules**: Database-level protection
 
 ### **Production Security**
+
 - **Console Cleanup**: 271 console statements commented out
 - **Security Headers**: Middleware for security headers
 - **Content Protection**: Text selection prevention on sensitive pages
@@ -294,6 +337,7 @@ Function endpoint: `razorpayWebhook` (use the HTTPS URL from Firebase console). 
 ## 🚀 **Performance Optimizations**
 
 ### **Build & Development**
+
 - **Vite**: Fast development server and optimized builds
 - **Code Splitting**: Better load times with lazy loading
 - **Lazy Loading**: Images and components loaded on demand
@@ -301,6 +345,7 @@ Function endpoint: `razorpayWebhook` (use the HTTPS URL from Firebase console). 
 - **Responsive Images**: Proper sizing and optimization
 
 ### **User Experience**
+
 - **Loading Skeletons**: Better perceived performance
 - **Smooth Transitions**: Framer Motion animations
 - **Error Handling**: Comprehensive error states
@@ -309,6 +354,7 @@ Function endpoint: `razorpayWebhook` (use the HTTPS URL from Firebase console). 
 ## 📈 **Future Enhancement Roadmap**
 
 ### **Planned Features**
+
 - [ ] **PWA Support**: Offline access and app-like experience
 - [ ] **Push Notifications**: Event reminders and updates
 - [ ] **Advanced Search**: Enhanced search with filters
@@ -323,6 +369,7 @@ Function endpoint: `razorpayWebhook` (use the HTTPS URL from Firebase console). 
 ## 📊 **Project Statistics**
 
 ### **Code Quality**
+
 - **36 files** modified for production cleanup
 - **271 console statements** commented out
 - **Multiple contexts** for state management
@@ -330,6 +377,7 @@ Function endpoint: `razorpayWebhook` (use the HTTPS URL from Firebase console). 
 - **TypeScript support** with proper configuration
 
 ### **Feature Coverage**
+
 - **Complete authentication system**
 - **Full CRUD operations** for all entities
 - **Payment integration** with verification
@@ -348,6 +396,7 @@ This project is licensed under the MIT License.
 ## 🔄 **How It Works**
 
 ### **Application Flow**
+
 1. **User Authentication**: Users sign in with Google OAuth through Firebase Auth
 2. **Role Detection**: System automatically detects user role based on email domain
 3. **Profile Management**: Users complete their profiles with academic details
@@ -356,12 +405,14 @@ This project is licensed under the MIT License.
 6. **Admin Management**: Admins can manage users, events, and payments through dashboard
 
 ### **Data Flow**
+
 - **Real-time Updates**: Firestore provides real-time data synchronization
 - **State Management**: React Context manages global application state
 - **Payment Processing**: Razorpay handles secure payment transactions
 - **File Storage**: Firebase Storage manages user uploads and assets
 
 ### **Security Flow**
+
 - **Authentication**: Firebase Auth handles user authentication
 - **Authorization**: Role-based access control for different user types
 - **Data Validation**: Input sanitization and validation on all forms
@@ -372,6 +423,7 @@ This project is licensed under the MIT License.
 Developed by the **CSI NMAMIT Tech Team** with ❤️
 
 ### **Team Members**
+
 - **Frontend Development**: React, Vite, Tailwind CSS
 - **Backend Integration**: Firebase, Razorpay
 - **UI/UX Design**: Modern glassmorphism and animations
@@ -385,9 +437,10 @@ Developed by the **CSI NMAMIT Tech Team** with ❤️
 
 All console statements have been commented out for production. The following files were modified:
 
-### Modified Files (36 total):
+### Modified Files (36 total)
 
 #### Hooks (5 files)
+
 - `src/hooks/useEvents.js`
 - `src/hooks/useRecruit.js`
 - `src/hooks/useProfileFirestore.js`
@@ -395,10 +448,12 @@ All console statements have been commented out for production. The following fil
 - `src/hooks/useSecureRecruit.js`
 
 #### Contexts (2 files)
+
 - `src/contexts/AuthContext.jsx`
 - `src/contexts/AdminAuthContext.jsx`
 
 #### Config (5 files)
+
 - `src/config/emailjs.js`
 - `src/config/coreMembers.js`
 - `src/config/cloudinary.js`
@@ -406,11 +461,13 @@ All console statements have been commented out for production. The following fil
 - `src/config/firebase-secure.js`
 
 #### Services (3 files)
+
 - `src/services/paymentService.js`
 - `src/services/eventService.js`
 - `src/services/emailService.js`
 
 #### Pages - Admin (10 files)
+
 - `src/pages/NotFound.jsx`
 - `src/pages/Admin/Payments/AdminPayments.jsx`
 - `src/pages/Admin/Payments/services/paymentDataService.js`
@@ -424,6 +481,7 @@ All console statements have been commented out for production. The following fil
 - `src/pages/Admin/AdminEMembers-clean.jsx`
 
 #### Components (5 files)
+
 - `src/components/Layout/Navbar.jsx`
 - `src/components/Events/EventCard.jsx`
 - `src/components/Admin/EventForm.jsx`
@@ -431,12 +489,14 @@ All console statements have been commented out for production. The following fil
 - `src/components/Profile/ProfileCompletionModal.jsx`
 
 #### Utils (4 files)
+
 - `src/utils/emailDiagnostics.js`
 - `src/utils/secureCoreMembersUtils.js`
 - `src/utils/securityUtils.js`
 - `src/utils/testCoreMembers.js`
 
 #### Main (1 file)
+
 - `src/main.jsx`
 
 **Total console statements commented**: 271 statements across 36 files

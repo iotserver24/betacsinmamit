@@ -82,6 +82,27 @@ export const isValidUSN = (usn) => {
   return usnRegex.test(usn);
 };
 
+// Sanitize phone number - Remove 0, +91 and keep only 10 digits
+export const sanitizePhone = (phone) => {
+  if (!phone) return '';
+
+  // Remove all non-digit characters
+  let cleaned = String(phone).replace(/\D/g, '');
+
+  // Remove leading 0
+  if (cleaned.startsWith('0')) {
+    cleaned = cleaned.substring(1);
+  }
+
+  // Remove country code +91 (91 after removing non-digits)
+  if (cleaned.startsWith('91') && cleaned.length > 10) {
+    cleaned = cleaned.substring(2);
+  }
+
+  // Take only first 10 digits
+  return cleaned.substring(0, 10);
+};
+
 // Rate limiting helper (client-side)
 export const createRateLimiter = (maxAttempts = 5, windowMs = 60000) => {
   const attempts = new Map();

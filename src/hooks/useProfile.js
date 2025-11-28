@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import { sanitizePhone } from '../utils/securityUtils'
 import toast from 'react-hot-toast'
 
 /**
@@ -57,19 +58,27 @@ export const useProfile = () => {
   const handleSave = async () => {
     setLoading(true)
     try {
+      // Sanitize phone number before saving
+      const sanitizedPhone = sanitizePhone(profileData.phone)
+
       const updates = {
         name: profileData.name,
         profile: {
-          phone: profileData.phone,
+          phone: sanitizedPhone,
           college: profileData.college,
           branch: profileData.branch,
           year: profileData.year,
           bio: profileData.bio
         }
       }
-      
+
       const success = await updateUserProfile(updates)
       if (success) {
+        // Update local state with sanitized phone
+        setProfileData(prev => ({
+          ...prev,
+          phone: sanitizedPhone
+        }))
         setIsEditing(false)
         toast.success('Profile updated successfully!')
       }

@@ -132,7 +132,7 @@ VITE_RAZORPAY_KEY_ID=your-razorpay-key
 VITE_RAZORPAY_KEY_SECRET=your-razorpay-secret
 
 # API Configuration
-VITE_API_URL=http://localhost:3000/api
+VITE_API_URL=http://localhost:3000
 ```
 
 ### **Development Commands**

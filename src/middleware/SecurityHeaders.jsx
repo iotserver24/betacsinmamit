@@ -15,7 +15,7 @@ const SecurityHeaders = ({ children }) => {
     try {
       const saved = localStorage.getItem('adminSettings')
       adminSettings = saved ? JSON.parse(saved) : {}
-    } catch {}
+    } catch { }
 
     // Prevent clickjacking
     if (window.self !== window.top) {
@@ -92,13 +92,17 @@ const SecurityHeaders = ({ children }) => {
     try {
       const saved = localStorage.getItem('adminSettings')
       adminSettings = saved ? JSON.parse(saved) : {}
-    } catch {}
+    } catch { }
 
     // Add CSP meta tag (Note: frame-ancestors cannot be set via meta tag, only via HTTP headers)
     const cspMeta = document.createElement('meta')
     cspMeta.httpEquiv = 'Content-Security-Policy'
 
-    const STANDARD_CSP = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://accounts.google.com https://checkout.razorpay.com https://*.firebaseapp.com; style-src 'self' 'unsafe-inline' https://accounts.google.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.emailjs.com https://api.razorpay.com https://checkout.razorpay.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://accounts.google.com https://*.googleapis.com https://api.cloudinary.com https://res.cloudinary.com https://api.web3forms.com; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://accounts.google.com https://*.firebaseapp.com https://*.firebaseauth.com; font-src 'self' data:;"
+    // Get backend API URL from environment variables
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
+    const apiUrlForCSP = apiBaseUrl ? ` ${apiBaseUrl}` : ''
+
+    const STANDARD_CSP = `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://accounts.google.com https://checkout.razorpay.com https://*.firebaseapp.com; style-src 'self' 'unsafe-inline' https://accounts.google.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.emailjs.com https://api.razorpay.com https://checkout.razorpay.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://accounts.google.com https://*.googleapis.com https://api.cloudinary.com https://res.cloudinary.com https://api.web3forms.com${apiUrlForCSP}; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://accounts.google.com https://*.firebaseapp.com https://*.firebaseauth.com; font-src 'self' data:;`
     const STRICT_CSP = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-src 'self'; font-src 'self' data:;"
 
     cspMeta.content = adminSettings.cspLevel === 'strict' ? STRICT_CSP : STANDARD_CSP

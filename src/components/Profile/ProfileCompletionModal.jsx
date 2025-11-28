@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  User, 
-  Phone, 
+import {
+  User,
+  Phone,
   BookOpen,
   GraduationCap,
   CreditCard,
@@ -47,31 +47,31 @@ const ProfileCompletionModal = ({ isOpen, onComplete }) => {
   // Validate form
   const validateForm = () => {
     const newErrors = {}
-    
-    if (!formData.name.trim()) {
+
+    if (!formData.name || String(formData.name).trim() === '') {
       newErrors.name = 'Name is required'
     }
-    
-    if (!formData.phone.trim()) {
+
+    if (!formData.phone || String(formData.phone).trim() === '') {
       newErrors.phone = 'Phone number is required'
-    } else if (!/^[6-9]\d{9}$/.test(formData.phone.replace(/\D/g, ''))) {
+    } else if (!/^[6-9]\d{9}$/.test(String(formData.phone).replace(/\D/g, ''))) {
       newErrors.phone = 'Please enter a valid 10-digit phone number'
     }
-    
+
     if (!formData.branch) {
       newErrors.branch = 'Branch is required'
     }
-    
+
     if (!formData.year) {
       newErrors.year = 'Year is required'
     }
-    
-    if (!formData.usn.trim()) {
+
+    if (!formData.usn || String(formData.usn).trim() === '') {
       newErrors.usn = 'USN is required'
-    } else if (!/^NNM\d{2}[A-Z]{2}\d{3}$/i.test(formData.usn.toUpperCase())) {
+    } else if (!/^NNM\d{2}[A-Z]{2}\d{3}$/i.test(String(formData.usn).toUpperCase())) {
       newErrors.usn = 'Please enter a valid USN (e.g., 4NM21CS001)'
     }
-    
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -95,51 +95,52 @@ const ProfileCompletionModal = ({ isOpen, onComplete }) => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
+
     if (!validateForm()) {
       toast.error('Please fill in all required fields correctly')
       return
     }
-    
+
     if (!user?.uid) {
       toast.error('User not authenticated')
       return
     }
-    
+
     setLoading(true)
     try {
       const userRef = doc(db, 'users', user.uid)
-      
+
+      // Prepare update data
       // Prepare update data
       const updateData = {
-        name: formData.name.trim(),
-        phone: formData.phone.trim(),
+        name: String(formData.name || '').trim(),
+        phone: String(formData.phone || '').trim(),
         branch: formData.branch,
         year: formData.year,
-        usn: formData.usn.toUpperCase().trim(),
+        usn: String(formData.usn || '').toUpperCase().trim(),
         profileCompleted: true,
-        
+
         // Update nested profile object for backward compatibility
         profile: {
-          phone: formData.phone.trim(),
+          phone: String(formData.phone || '').trim(),
           college: 'NMAMIT',
           branch: formData.branch,
           year: formData.year,
           bio: user.profile?.bio || ''
         },
-        
+
         // Timestamps
         updatedAt: serverTimestamp()
       }
-      
+
       // Update Firestore
       await setDoc(userRef, updateData, { merge: true })
-      
+
       // Update profile completion status in context
       await checkProfileCompletion()
-      
+
       toast.success('Profile completed successfully! Welcome to CSI NMAMIT!')
-      
+
       // Call onComplete callback
       if (onComplete) {
         onComplete()
@@ -164,7 +165,7 @@ const ProfileCompletionModal = ({ isOpen, onComplete }) => {
           exit={{ opacity: 0 }}
           className="absolute inset-0 bg-black/80 backdrop-blur-sm"
         />
-        
+
         {/* Modal */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -185,7 +186,7 @@ const ProfileCompletionModal = ({ isOpen, onComplete }) => {
               </div>
             </div>
           </div>
-          
+
           {/* Form */}
           <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto flex-1">
             {/* Success Message */}
@@ -202,7 +203,7 @@ const ProfileCompletionModal = ({ isOpen, onComplete }) => {
                 </div>
               </div>
             </div>
-            
+
             {/* Name Field */}
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -215,17 +216,16 @@ const ProfileCompletionModal = ({ isOpen, onComplete }) => {
                 value={formData.name}
                 onChange={handleInputChange}
                 placeholder="Enter your full name"
-                className={`w-full px-4 py-3 rounded-lg border ${
-                  errors.name 
-                    ? 'border-red-500 focus:ring-red-500' 
+                className={`w-full px-4 py-3 rounded-lg border ${errors.name
+                    ? 'border-red-500 focus:ring-red-500'
                     : 'border-gray-300 dark:border-gray-700 focus:ring-blue-500'
-                } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 transition-all`}
+                  } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 transition-all`}
               />
               {errors.name && (
                 <p className="mt-1 text-sm text-red-500">{errors.name}</p>
               )}
             </div>
-            
+
             {/* Phone Field */}
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -238,17 +238,16 @@ const ProfileCompletionModal = ({ isOpen, onComplete }) => {
                 value={formData.phone}
                 onChange={handleInputChange}
                 placeholder="Enter your 10-digit phone number"
-                className={`w-full px-4 py-3 rounded-lg border ${
-                  errors.phone 
-                    ? 'border-red-500 focus:ring-red-500' 
+                className={`w-full px-4 py-3 rounded-lg border ${errors.phone
+                    ? 'border-red-500 focus:ring-red-500'
                     : 'border-gray-300 dark:border-gray-700 focus:ring-blue-500'
-                } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 transition-all`}
+                  } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 transition-all`}
               />
               {errors.phone && (
                 <p className="mt-1 text-sm text-red-500">{errors.phone}</p>
               )}
             </div>
-            
+
             {/* Branch Field */}
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -259,11 +258,10 @@ const ProfileCompletionModal = ({ isOpen, onComplete }) => {
                 name="branch"
                 value={formData.branch}
                 onChange={handleInputChange}
-                className={`w-full px-4 py-3 rounded-lg border ${
-                  errors.branch 
-                    ? 'border-red-500 focus:ring-red-500' 
+                className={`w-full px-4 py-3 rounded-lg border ${errors.branch
+                    ? 'border-red-500 focus:ring-red-500'
                     : 'border-gray-300 dark:border-gray-700 focus:ring-blue-500'
-                } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 transition-all`}
+                  } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 transition-all`}
               >
                 <option value="">Select your branch</option>
                 <option value="Computer Science">Computer Science</option>
@@ -279,7 +277,7 @@ const ProfileCompletionModal = ({ isOpen, onComplete }) => {
                 <p className="mt-1 text-sm text-red-500">{errors.branch}</p>
               )}
             </div>
-            
+
             {/* Year Field */}
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -290,11 +288,10 @@ const ProfileCompletionModal = ({ isOpen, onComplete }) => {
                 name="year"
                 value={formData.year}
                 onChange={handleInputChange}
-                className={`w-full px-4 py-3 rounded-lg border ${
-                  errors.year 
-                    ? 'border-red-500 focus:ring-red-500' 
+                className={`w-full px-4 py-3 rounded-lg border ${errors.year
+                    ? 'border-red-500 focus:ring-red-500'
                     : 'border-gray-300 dark:border-gray-700 focus:ring-blue-500'
-                } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 transition-all`}
+                  } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 transition-all`}
               >
                 <option value="">Select your year</option>
                 <option value="First Year">First Year</option>
@@ -306,7 +303,7 @@ const ProfileCompletionModal = ({ isOpen, onComplete }) => {
                 <p className="mt-1 text-sm text-red-500">{errors.year}</p>
               )}
             </div>
-            
+
             {/* USN Field */}
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -319,25 +316,24 @@ const ProfileCompletionModal = ({ isOpen, onComplete }) => {
                 value={formData.usn}
                 onChange={handleInputChange}
                 placeholder="e.g., 4NM21CS001"
-                className={`w-full px-4 py-3 rounded-lg border ${
-                  errors.usn 
-                    ? 'border-red-500 focus:ring-red-500' 
+                className={`w-full px-4 py-3 rounded-lg border ${errors.usn
+                    ? 'border-red-500 focus:ring-red-500'
                     : 'border-gray-300 dark:border-gray-700 focus:ring-blue-500'
-                } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 transition-all uppercase`}
+                  } bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 transition-all uppercase`}
               />
               {errors.usn && (
                 <p className="mt-1 text-sm text-red-500">{errors.usn}</p>
               )}
             </div>
-            
+
             {/* Note */}
             <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
               <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                <strong>Note:</strong> You must complete your profile to access all features. 
+                <strong>Note:</strong> You must complete your profile to access all features.
                 This information helps us provide you with a better experience.
               </p>
             </div>
-            
+
             {/* Submit Button */}
             <button
               type="submit"

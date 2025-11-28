@@ -17,7 +17,7 @@ export const uploadProfileImage = async (userId, imageFile) => {
   try {
     // Upload to Cloudinary
     const uploadResult = await uploadToCloudinary(imageFile, 'csi-profiles')
-    
+
     if (!uploadResult.secure_url) {
       throw new Error('Failed to get image URL from Cloudinary')
     }
@@ -57,10 +57,10 @@ export const updateUserProfile = async (userId, profileData) => {
     // Sanitize incoming data
     const safeProfileData = sanitizeFormData(profileData)
     const userRef = doc(db, 'users', userId)
-    
+
     // Check if user document exists
     const userDoc = await getDoc(userRef)
-    
+
     if (!userDoc.exists()) {
       // Create new document if it doesn't exist
       await setDoc(userRef, {
@@ -97,11 +97,11 @@ export const getUserProfile = async (userId) => {
   try {
     const userRef = doc(db, 'users', userId)
     const userDoc = await getDoc(userRef)
-    
+
     if (userDoc.exists()) {
       return userDoc.data()
     }
-    
+
     return null
   } catch (error) {
     console.error('Error getting user profile:', error)
@@ -119,12 +119,12 @@ export const getUserProfile = async (userId) => {
 export const updateProfileWithImage = async (userId, profileData, imageFile = null) => {
   try {
     let photoURL = profileData.photoURL
-    
+
     // Upload image if provided
     if (imageFile) {
       photoURL = await uploadProfileImage(userId, imageFile)
     }
-    
+
     // Prepare update data
     // Sanitize base profile fields
     const safeBase = sanitizeFormData({
@@ -149,7 +149,7 @@ export const updateProfileWithImage = async (userId, profileData, imageFile = nu
         updatedAt: serverTimestamp()
       }
     }
-    
+
     // Also update roleDetails if role is provided
     if (profileData.role) {
       updateData.roleDetails = {
@@ -157,10 +157,10 @@ export const updateProfileWithImage = async (userId, profileData, imageFile = nu
         updatedAt: serverTimestamp()
       }
     }
-    
+
     // Update profile in Firestore
     await updateUserProfile(userId, updateData)
-    
+
     return {
       ...updateData,
       photoURL
@@ -178,12 +178,12 @@ export const updateProfileWithImage = async (userId, profileData, imageFile = nu
  */
 export const validateProfileData = (profileData) => {
   const errors = {}
-  
+
   // Required fields
-  if (!profileData.name || profileData.name.trim() === '') {
+  if (!profileData.name || String(profileData.name).trim() === '') {
     errors.name = 'Name is required'
   }
-  
+
   // Phone validation
   if (profileData.phone) {
     const phoneRegex = /^[0-9]{10}$/
@@ -191,7 +191,7 @@ export const validateProfileData = (profileData) => {
       errors.phone = 'Please enter a valid 10-digit phone number'
     }
   }
-  
+
   // Year validation
   if (profileData.year) {
     const validYears = ['2nd year', '3rd year', '4th year', 'Alumni']
@@ -199,16 +199,16 @@ export const validateProfileData = (profileData) => {
       errors.year = 'Please select a valid year'
     }
   }
-  
+
   // URL validations
   if (profileData.linkedin && !profileData.linkedin.includes('linkedin.com')) {
     errors.linkedin = 'Please enter a valid LinkedIn URL'
   }
-  
+
   if (profileData.github && !profileData.github.includes('github.com')) {
     errors.github = 'Please enter a valid GitHub URL'
   }
-  
+
   return {
     isValid: Object.keys(errors).length === 0,
     errors

@@ -39,11 +39,11 @@ export const getRowClassName = (index, isSelected) => {
 // CSV export utility with ALL details - properly handling all fields
 export const exportMembersToCSV = (members) => {
   // console.log('Exporting members to CSV. Sample member:', members[0])
-  
+
   // Comprehensive headers including all fields
   const headers = [
     'Name',
-    'Email', 
+    'Email',
     'Phone',
     'USN',
     'Branch',
@@ -57,7 +57,7 @@ export const exportMembersToCSV = (members) => {
     'Membership Start Date',
     'Membership End Date',
     'Payment Amount',
-    'Platform Fee', 
+    'Platform Fee',
     'Total Amount',
     'Currency',
     'Payment Date',
@@ -70,17 +70,17 @@ export const exportMembersToCSV = (members) => {
     'Last Updated',
     'User ID'
   ]
-  
+
   // Process each member's data
   const rows = []
-  
+
   members.forEach(member => {
     // Log to debug data structure
     // console.log('Processing member:', member.name, 'Payment Details:', member.paymentDetails)
-    
+
     // Build row data - ensure every field is extracted properly
     const rowData = []
-    
+
     // Basic Information
     rowData.push(member.name || '-')
     rowData.push(member.email || '-')
@@ -90,17 +90,17 @@ export const exportMembersToCSV = (members) => {
     rowData.push(member.year || member.yearOfStudy || '-')
     rowData.push(member.position || 'Executive Member')
     rowData.push(member.role || 'EXECUTIVE MEMBER')
-    
+
     // Social Information
     rowData.push(member.bio || '-')
     rowData.push(member.github || '-')
     rowData.push(member.linkedin || '-')
-    
+
     // Membership Information
     rowData.push(member.membershipType || '-')
     rowData.push(member.membershipStartDate ? formatTimestamp(member.membershipStartDate) : '-')
     rowData.push(member.membershipEndDate ? formatTimestamp(member.membershipEndDate) : '-')
-    
+
     // Payment Information - check if paymentDetails exists
     if (member.paymentDetails) {
       rowData.push(member.paymentDetails.amount || '-')
@@ -122,24 +122,24 @@ export const exportMembersToCSV = (members) => {
       rowData.push('-') // razorpay order id
       rowData.push('-') // razorpay payment id
     }
-    
+
     // Additional Information
     rowData.push(member.certificates?.length || '0')
     rowData.push(member.status || 'Active')
     rowData.push(member.createdAt ? formatTimestamp(member.createdAt) : '-')
     rowData.push(member.updatedAt ? formatTimestamp(member.updatedAt) : '-')
     rowData.push(member.id || '-')
-    
+
     // Add the row
     rows.push(rowData)
   })
-  
+
   // Build CSV content
   let csvContent = ''
-  
+
   // Add headers
   csvContent += headers.map(h => `"${h}"`).join(',') + '\r\n'
-  
+
   // Add data rows
   rows.forEach(row => {
     const processedRow = row.map(cell => {
@@ -150,10 +150,10 @@ export const exportMembersToCSV = (members) => {
     })
     csvContent += processedRow.join(',') + '\r\n'
   })
-  
+
   // Log final CSV for debugging
   // console.log('CSV Content (first 500 chars):', csvContent.substring(0, 500))
-  
+
   // Create and download file
   const BOM = '\uFEFF' // UTF-8 BOM for Excel
   const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8' })
@@ -164,7 +164,7 @@ export const exportMembersToCSV = (members) => {
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
-  
+
   // Clean up
   setTimeout(() => window.URL.revokeObjectURL(url), 100)
 }
@@ -184,13 +184,13 @@ export const exportMembersToJSON = (members) => {
 // Form validation
 export const validateMemberForm = (form) => {
   const errors = {}
-  if (!form.name?.trim()) errors.name = 'Name is required'
-  if (!form.personalEmail?.trim()) errors.personalEmail = 'Personal email is required'
-  if (!form.usn?.trim()) errors.usn = 'USN is required'
-  if (!form.branch?.trim()) errors.branch = 'Branch is required'
-  if (!form.yearOfStudy?.trim()) errors.yearOfStudy = 'Year of study is required'
-  if (!form.mobileNumber?.trim()) errors.mobileNumber = 'Mobile number is required'
+  if (!String(form.name || '').trim()) errors.name = 'Name is required'
+  if (!String(form.personalEmail || '').trim()) errors.personalEmail = 'Personal email is required'
+  if (!String(form.usn || '').trim()) errors.usn = 'USN is required'
+  if (!String(form.branch || '').trim()) errors.branch = 'Branch is required'
+  if (!String(form.yearOfStudy || '').trim()) errors.yearOfStudy = 'Year of study is required'
+  if (!String(form.mobileNumber || '').trim()) errors.mobileNumber = 'Mobile number is required'
   if (!form.dateOfBirth) errors.dateOfBirth = 'Date of birth is required'
-  if (!form.membershipPlan?.trim()) errors.membershipPlan = 'Membership plan is required'
+  if (!String(form.membershipPlan || '').trim()) errors.membershipPlan = 'Membership plan is required'
   return errors
 }

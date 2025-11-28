@@ -3,10 +3,10 @@
  * Handles all payment-related operations with security measures
  */
 
-import { 
-  validatePaymentAmount, 
+import {
+  validatePaymentAmount,
   generateTransactionId,
-  sanitizeFormData 
+  sanitizeFormData
 } from '../utils/securityUtils'
 import { membershipPlans } from '../data/membershipData'
 
@@ -27,11 +27,11 @@ class PaymentService {
     const recentAttempts = userAttempts.filter(
       timestamp => now - timestamp < 300000 // 5 minutes window
     )
-    
+
     if (recentAttempts.length >= 3) {
       throw new Error('Too many payment attempts. Please try again later.')
     }
-    
+
     recentAttempts.push(now)
     this.rateLimitMap.set(userId, recentAttempts)
     return true
@@ -52,7 +52,8 @@ class PaymentService {
     // Validate required fields
     const requiredFields = ['name', 'email', 'phone', 'branch', 'year', 'usn']
     for (const field of requiredFields) {
-      if (!formData[field] || formData[field].trim() === '') {
+      const value = formData[field]
+      if (!value || String(value).trim() === '') {
         errors.push(`${field} is required`)
       }
     }
@@ -70,9 +71,9 @@ class PaymentService {
     }
 
     // Validate USN format
-    const usnRegex = /^[1-4]NM(2[0-9])[A-Z]{2}\d{3}$/i
+    const usnRegex = /^(NNM|NU)/i
     if (formData.usn && !usnRegex.test(formData.usn)) {
-      errors.push('Invalid USN format')
+      errors.push('Invalid USN format (must start with NNM or NU)')
     }
 
     if (errors.length > 0) {
@@ -256,13 +257,13 @@ class PaymentService {
       script.src = 'https://checkout.razorpay.com/v1/checkout.js'
       script.async = true
       script.defer = true
-      
+
       // Add integrity check if available
       script.crossOrigin = 'anonymous'
-      
+
       script.onload = () => resolve(true)
       script.onerror = () => resolve(false)
-      
+
       document.body.appendChild(script)
     })
   }

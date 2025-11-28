@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useProfileFirestore } from '../hooks/useProfileFirestore'
 import ProfileHero from '../components/Profile/ProfileHero'
@@ -20,9 +21,35 @@ const Profile = () => {
     handleInputChange
   } = useProfileFirestore()
 
+  const location = useLocation()
+  const navigate = useNavigate()
+  const searchParams = new URLSearchParams(location.search)
+  const returnTo = searchParams.get('returnTo')
+
+  // Auto-enable edit mode if returning from recruit page with incomplete profile
+  useEffect(() => {
+    if (returnTo && !profileLoading && profileData) {
+      // Check if profile is actually incomplete before forcing edit mode
+      const isProfileIncomplete = !profileData.phone || !profileData.branch || !profileData.year || !profileData.usn
+      if (isProfileIncomplete) {
+        handleEdit()
+        // Optional: Notify user why they are in edit mode
+        // toast('Please complete your profile to continue registration', { icon: '📝' })
+      }
+    }
+  }, [returnTo, profileLoading, profileData])
+
+  const handleSaveWrapper = async () => {
+    const success = await handleSave()
+    if (success && returnTo) {
+      navigate(returnTo)
+    }
+    return success
+  }
+
   return (
     <>
-      <Toaster 
+      <Toaster
         position="top-right"
         containerStyle={{ top: 80 }}
         toastOptions={{
@@ -54,10 +81,14 @@ const Profile = () => {
                   loading={profileLoading}
                   onEdit={handleEdit}
                   onCancel={handleCancel}
-                  onSave={handleSave}
+                  onSave={handleSaveWrapper}
                   onInputChange={handleInputChange}
                 />
-                <MembershipDetails user={user} />
+                <MembershipDetails
+                  user={user}
+                  isEditing={isEditing}
+                  onSave={handleSaveWrapper}
+                />
               </div>
             </div>
           </>

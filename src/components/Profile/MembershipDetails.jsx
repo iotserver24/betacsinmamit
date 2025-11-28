@@ -1,6 +1,28 @@
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import toast from 'react-hot-toast'
 
-const MembershipDetails = ({ membershipStatus, membershipType, membershipExpiry }) => {
+const MembershipDetails = ({ user, isEditing, onSave }) => {
+  const navigate = useNavigate()
+  const membershipStatus = user?.membership?.status || 'inactive'
+  const membershipType = user?.membership?.type || 'None'
+  const membershipExpiry = user?.membership?.expiresAt?.toDate()
+
+  const handleActivateClick = async (e) => {
+    e.preventDefault()
+    if (isEditing) {
+      toast.loading('Saving profile before redirecting...', { id: 'save-redirect' })
+      const success = await onSave()
+      if (success) {
+        toast.success('Profile saved! Redirecting...', { id: 'save-redirect' })
+        navigate('/recruit')
+      } else {
+        toast.error('Failed to save profile. Please try again.', { id: 'save-redirect' })
+      }
+    } else {
+      navigate('/recruit')
+    }
+  }
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -28,10 +50,13 @@ const MembershipDetails = ({ membershipStatus, membershipType, membershipExpiry 
             </div>
           )}
         </div>
-        
+
         {membershipStatus === 'inactive' && (
-          <button className="w-full btn-primary">
-            Activate Membership
+          <button
+            onClick={handleActivateClick}
+            className="w-full btn-primary block text-center py-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-colors"
+          >
+            {isEditing ? 'Save & Activate Membership' : 'Activate Membership'}
           </button>
         )}
       </div>

@@ -33,7 +33,7 @@ import { exportMembersToCSV, exportMembersToJSON } from './utils/helpers'
 const AdminEMembers = () => {
   const { logAdminActivity } = useAdminAuth()
   const location = useLocation()
-  
+
   // State management
   const [members, setMembers] = useState([])
   const [loading, setLoading] = useState(true)
@@ -44,7 +44,7 @@ const AdminEMembers = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [sortField, setSortField] = useState('createdAt')
   const [sortOrder, setSortOrder] = useState('desc')
-  
+
   // Modal states
   const [showRemoveModal, setShowRemoveModal] = useState(false)
   const [memberToRemove, setMemberToRemove] = useState(null)
@@ -67,7 +67,7 @@ const AdminEMembers = () => {
         id: doc.id,
         ...doc.data()
       }))
-      
+
       setMembers(membersData)
       await logAdminActivity('executive_members_viewed', { count: membersData.length })
     } catch (error) {
@@ -117,13 +117,13 @@ const AdminEMembers = () => {
     filtered.sort((a, b) => {
       let aVal = a[sortField] || ''
       let bVal = b[sortField] || ''
-      
+
       if (sortField === 'createdAt') {
         aVal = a.createdAt?.seconds || 0
         bVal = b.createdAt?.seconds || 0
       }
-      
-      return sortOrder === 'asc' 
+
+      return sortOrder === 'asc'
         ? (aVal > bVal ? 1 : -1)
         : (aVal < bVal ? 1 : -1)
     })
@@ -169,11 +169,11 @@ const AdminEMembers = () => {
         ...updates,
         updatedAt: new Date()
       })
-      
+
       setMembers(prev => prev.map(member =>
         member.id === memberId ? { ...member, ...updates } : member
       ))
-      
+
       toast.success('Member updated successfully')
       await logAdminActivity('executive_member_updated', { memberId, updates })
       setEditingMember(null)
@@ -196,11 +196,11 @@ const AdminEMembers = () => {
         role: 'User',
         updatedAt: new Date()
       })
-      
+
       setMembers(prev => prev.filter(member => member.id !== memberToRemove.id))
       toast.success('Member role removed successfully')
       await logAdminActivity('executive_member_role_removed', { memberId: memberToRemove.id })
-      
+
       setShowRemoveModal(false)
       setMemberToRemove(null)
     } catch (error) {
@@ -215,7 +215,7 @@ const AdminEMembers = () => {
       if (!currentUser) {
         throw new Error('User not authenticated')
       }
-      
+
       // Validate date
       const birthDate = new Date(payload.dateOfBirth)
       if (isNaN(birthDate.getTime())) {
@@ -224,43 +224,43 @@ const AdminEMembers = () => {
 
       // Generate unique ID
       const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      
+
       // Create user document
       const newUser = {
-        name: payload.name.trim(),
-        email: payload.personalEmail.trim(),
-        branch: payload.branch?.trim() || null,
-        usn: payload.usn?.trim() || null,
-        phone: payload.mobileNumber?.trim() || null,
+        name: String(payload.name || '').trim(),
+        email: String(payload.personalEmail || '').trim(),
+        branch: payload.branch ? String(payload.branch).trim() : null,
+        usn: payload.usn ? String(payload.usn).trim() : null,
+        phone: payload.mobileNumber ? String(payload.mobileNumber).trim() : null,
         year: payload.yearOfStudy || null,
         role: 'EXECUTIVE MEMBER',
         certificates: [],
         createdAt: new Date(),
         updatedAt: new Date()
       }
-      
+
       const userRef = doc(db, 'users', userId)
       await setDoc(userRef, newUser)
 
       // Create recruit document
       const recruitDoc = {
-        name: payload.name.trim(),
+        name: String(payload.name || '').trim(),
         dateOfBirth: Timestamp.fromDate(birthDate),
-        usn: payload.usn.trim(),
-        yearOfStudy: payload.yearOfStudy.trim(),
-        branch: payload.branch.trim(),
-        mobileNumber: payload.mobileNumber.trim(),
-        personalEmail: payload.personalEmail.trim(),
-        collegeEmail: payload.collegeEmail ? payload.collegeEmail.trim() : null,
-        membershipPlan: payload.membershipPlan.trim(),
+        usn: String(payload.usn || '').trim(),
+        yearOfStudy: String(payload.yearOfStudy || '').trim(),
+        branch: String(payload.branch || '').trim(),
+        mobileNumber: String(payload.mobileNumber || '').trim(),
+        personalEmail: String(payload.personalEmail || '').trim(),
+        collegeEmail: payload.collegeEmail ? String(payload.collegeEmail).trim() : null,
+        membershipPlan: String(payload.membershipPlan || '').trim(),
         csiIdea: 'N/A',
         paymentStatus: payload.paymentStatus || 'pending',
-        paymentId: payload.paymentId ? payload.paymentId.trim() : null,
-        orderId: payload.orderId ? payload.orderId.trim() : null,
+        paymentId: payload.paymentId ? String(payload.paymentId).trim() : null,
+        orderId: payload.orderId ? String(payload.orderId).trim() : null,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now()
       }
-      
+
       await addDoc(collection(db, 'recruits'), recruitDoc)
 
       setMembers(prev => [{ id: userId, ...newUser, position: 'Executive Member' }, ...prev])
@@ -336,10 +336,10 @@ const AdminEMembers = () => {
           <div className="flex items-center space-x-4">
             <SearchBar value={searchQuery} onChange={setSearchQuery} />
             {uniqueBranches.length > 0 && (
-              <BranchFilter 
-                branches={uniqueBranches} 
-                value={filterBranch} 
-                onChange={setFilterBranch} 
+              <BranchFilter
+                branches={uniqueBranches}
+                value={filterBranch}
+                onChange={setFilterBranch}
               />
             )}
             <button className="px-4 py-2 bg-[#417690] text-white rounded hover:bg-[#205067]">
@@ -385,35 +385,35 @@ const AdminEMembers = () => {
       {/* Members Table */}
       <div className="bg-white dark:bg-gray-900 border border-[#ddd] dark:border-gray-800 rounded overflow-hidden">
         <div className="overflow-x-auto -mx-4 sm:mx-0">
-        <table className="admin-table min-w-[1000px] w-full text-sm">
-          <TableHeader
-            headers={TABLE_HEADERS}
-            sortField={sortField}
-            sortOrder={sortOrder}
-            onSort={handleSort}
-            selectAll={selectAll}
-            onSelectAll={handleSelectAll}
-          />
-          <tbody>
-            {paginatedMembers.map((member, index) => (
-              <MemberRow
-                key={member.id}
-                member={member}
-                index={index}
-                isSelected={selectedMembers.includes(member.id)}
-                isEditing={editingMember === member.id}
-                onSelect={handleSelectMember}
-                onEdit={setEditingMember}
-                onUpdate={updateMember}
-                onRemoveRole={(member) => {
-                  setMemberToRemove(member)
-                  setShowRemoveModal(true)
-                }}
-                onViewDetails={handleViewDetails}
-              />
-            ))}
-          </tbody>
-        </table>
+          <table className="admin-table min-w-[1000px] w-full text-sm">
+            <TableHeader
+              headers={TABLE_HEADERS}
+              sortField={sortField}
+              sortOrder={sortOrder}
+              onSort={handleSort}
+              selectAll={selectAll}
+              onSelectAll={handleSelectAll}
+            />
+            <tbody>
+              {paginatedMembers.map((member, index) => (
+                <MemberRow
+                  key={member.id}
+                  member={member}
+                  index={index}
+                  isSelected={selectedMembers.includes(member.id)}
+                  isEditing={editingMember === member.id}
+                  onSelect={handleSelectMember}
+                  onEdit={setEditingMember}
+                  onUpdate={updateMember}
+                  onRemoveRole={(member) => {
+                    setMemberToRemove(member)
+                    setShowRemoveModal(true)
+                  }}
+                  onViewDetails={handleViewDetails}
+                />
+              ))}
+            </tbody>
+          </table>
         </div>
 
         {/* Empty State */}
@@ -453,19 +453,19 @@ const AdminEMembers = () => {
       )}
 
       {showAddModal && (
-        <AddMemberModal 
-          onClose={() => setShowAddModal(false)} 
-          onCreate={createMember} 
+        <AddMemberModal
+          onClose={() => setShowAddModal(false)}
+          onCreate={createMember}
         />
       )}
 
       {showDetailsModal && memberToView && (
-        <MemberDetailsModal 
-          member={memberToView} 
+        <MemberDetailsModal
+          member={memberToView}
           onClose={() => {
             setShowDetailsModal(false)
             setMemberToView(null)
-          }} 
+          }}
         />
       )}
     </div>

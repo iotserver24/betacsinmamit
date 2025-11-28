@@ -8,7 +8,7 @@ import toast from 'react-hot-toast'
  * Custom hook for managing profile data with Firestore
  */
 export const useProfileFirestore = () => {
-  const { user } = useAuth()
+  const { user, updateUserProfile } = useAuth()
   const [profileData, setProfileData] = useState({
     name: '',
     email: '',
@@ -37,7 +37,7 @@ export const useProfileFirestore = () => {
         setLoading(true)
         const userRef = doc(db, 'users', user.uid)
         const userSnap = await getDoc(userRef)
-        
+
         if (userSnap.exists()) {
           const data = userSnap.data()
           const profile = {
@@ -103,7 +103,7 @@ export const useProfileFirestore = () => {
       return false;
     }
     // Add other checks here (e.g., for name)
-    
+
     return true; // All checks passed
   };
 
@@ -122,7 +122,7 @@ export const useProfileFirestore = () => {
   const handleSave = async () => {
     if (!user?.uid) {
       toast.error('User not authenticated')
-      return
+      return false
     }
 
     // Debug: Log authentication state
@@ -131,24 +131,24 @@ export const useProfileFirestore = () => {
       email: user.email,
       name: user.name,
       isAuthenticated: !!user.uid
-    })  
+    })
 
     const isValid = validateProfileData(profileData);
     if (!isValid) {
-      return; // Stop execution if validation fails
+      return false; // Stop execution if validation fails
     }
 
     setLoading(true);
     try {
       const userRef = doc(db, 'users', user.uid);
-      
+
       const existingDoc = await getDoc(userRef);
       const existingData = existingDoc.exists() ? existingDoc.data() : {};
-      
+
       const validRoles = ['member', 'coreMember', 'admin', 'User', 'EXECUTIVE MEMBER', 'core'];
 
       // Prepare the update data according to Firestore rules
-// Prepare the update data according to Firestore rules
+      // Prepare the update data according to Firestore rules
       const updateData = {
         // Core fields that match Firestore rules
         name: profileData.name || '',
@@ -161,15 +161,15 @@ export const useProfileFirestore = () => {
 
         // --- ADD THIS LINE ---
         year: getYearAsNumber(profileData.year), // This satisfies the 'number' rule
-        
+
         // Preserve existing fields
         email: existingData.email || user.email || profileData.email,
-        
+
         // --- THIS IS THE CORRECTED LINE ---
         role: validRoles.includes(existingData.role) ? existingData.role : 'member',
-        
+
         certificates: existingData.certificates || [],
-        
+
         // Also update the nested profile object for backward compatibility
         profile: {
           phone: profileData.phone || '',
@@ -178,11 +178,11 @@ export const useProfileFirestore = () => {
           year: profileData.year || '', // This satisfies the 'string' rule
           bio: profileData.bio || ''
         },
-        
+
         // Timestamps
         updatedAt: serverTimestamp()
       };
-      
+
       // Add createdAt only if it's a new document
       if (!existingDoc.exists()) {
         updateData.createdAt = serverTimestamp()
@@ -190,16 +190,19 @@ export const useProfileFirestore = () => {
 
       // Debug: Log the data being sent
       console.log('Sending data to Firestore:', updateData)
-      
-      // Update Firestore document
-      await setDoc(userRef, updateData, { merge: true })
-      
-      setOriginalData(profileData)
-      setIsEditing(false)
-      toast.success('Profile updated successfully!')
+
+      // Update Firestore document and local state via AuthContext
+      const success = await updateUserProfile(updateData)
+
+      if (success) {
+        setOriginalData(profileData)
+        setIsEditing(false)
+        return true
+      }
+      return false
     } catch (error) {
       console.error('Error saving profile:', error)
-      
+
       // Provide more specific error messages
       if (error.code === 'permission-denied') {
         toast.error('Permission denied. Please make sure you are logged in.')
@@ -212,6 +215,7 @@ export const useProfileFirestore = () => {
       } else {
         toast.error(`Failed to save profile: ${error.message || 'Unknown error'}`)
       }
+      return false
     } finally {
       setLoading(false)
     }

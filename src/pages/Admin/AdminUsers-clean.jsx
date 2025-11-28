@@ -90,9 +90,8 @@ const TableHeader = ({ headers, sortField, sortOrder, onSort, selectAll, onSelec
       {headers.map(({ key, label, sortable }) => (
         <th
           key={key}
-          className={`px-4 py-2 text-left font-normal text-[#666] ${
-            sortable ? 'cursor-pointer hover:text-[#333]' : ''
-          }`}
+          className={`px-4 py-2 text-left font-normal text-[#666] ${sortable ? 'cursor-pointer hover:text-[#333]' : ''
+            }`}
           onClick={sortable ? () => onSort(key) : undefined}
         >
           {label} {sortable && sortField === key && (sortOrder === 'asc' ? '↑' : '↓')}
@@ -165,10 +164,10 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   const renderButtons = () => {
     const buttons = []
     const maxButtons = 5
-    
+
     let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2))
     let endPage = Math.min(totalPages, startPage + maxButtons - 1)
-    
+
     if (endPage - startPage < maxButtons - 1) {
       startPage = Math.max(1, endPage - maxButtons + 1)
     }
@@ -178,11 +177,10 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         <button
           key={i}
           onClick={() => onPageChange(i)}
-          className={`px-3 py-1 border rounded ${
-            currentPage === i
+          className={`px-3 py-1 border rounded ${currentPage === i
               ? 'bg-[#417690] text-white border-[#417690]'
               : 'bg-white border-[#ccc] hover:bg-[#f5f5f5]'
-          }`}
+            }`}
         >
           {i}
         </button>
@@ -217,7 +215,7 @@ const DeleteModal = ({ user, onConfirm, onCancel }) => (
     <div className="bg-white rounded p-6 max-w-md w-full">
       <h2 className="text-lg font-semibold text-[#333] mb-4">Confirm Deletion</h2>
       <p className="text-gray-600 mb-6">
-        Are you sure you want to delete user "{user?.name || user?.email}"? 
+        Are you sure you want to delete user "{user?.name || user?.email}"?
         This action cannot be undone.
       </p>
       <div className="flex items-center justify-end space-x-3">
@@ -241,12 +239,12 @@ const DeleteModal = ({ user, onConfirm, onCancel }) => (
 const AddUserModal = ({ onClose, onCreate }) => {
   const [form, setForm] = useState({ name: '', email: '', role: 'User', usn: '', branch: '' })
   const [submitting, setSubmitting] = useState(false)
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setForm(prev => ({ ...prev, [name]: value }))
   }
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.name?.trim() || !form.email?.trim()) {
@@ -257,7 +255,7 @@ const AddUserModal = ({ onClose, onCreate }) => {
     await onCreate(form)
     setSubmitting(false)
   }
-  
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded p-6 max-w-md w-full">
@@ -288,7 +286,7 @@ const AddUserModal = ({ onClose, onCreate }) => {
 const AdminUsers = () => {
   const { logAdminActivity } = useAdminAuth()
   const location = useLocation()
-  
+
   // State
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
@@ -313,7 +311,7 @@ const AdminUsers = () => {
         id: doc.id,
         ...doc.data()
       }))
-      
+
       setUsers(usersData)
       await logAdminActivity('users_viewed', { count: usersData.length })
     } catch (error) {
@@ -358,13 +356,13 @@ const AdminUsers = () => {
     filtered.sort((a, b) => {
       let aVal = a[sortField] || ''
       let bVal = b[sortField] || ''
-      
+
       if (sortField === 'createdAt') {
         aVal = a.createdAt?.seconds || 0
         bVal = b.createdAt?.seconds || 0
       }
-      
-      return sortOrder === 'asc' 
+
+      return sortOrder === 'asc'
         ? (aVal > bVal ? 1 : -1)
         : (aVal < bVal ? 1 : -1)
     })
@@ -408,11 +406,11 @@ const AdminUsers = () => {
         ...updates,
         updatedAt: new Date()
       })
-      
+
       setUsers(prev => prev.map(user =>
         user.id === userId ? { ...user, ...updates } : user
       ))
-      
+
       toast.success('User updated successfully')
       await logAdminActivity('user_updated', { userId, updates })
       setEditingUser(null)
@@ -428,10 +426,10 @@ const AdminUsers = () => {
     try {
       await deleteDoc(doc(db, 'users', userToDelete.id))
       setUsers(prev => prev.filter(user => user.id !== userToDelete.id))
-      
+
       toast.success('User deleted successfully')
       await logAdminActivity('user_deleted', { userId: userToDelete.id })
-      
+
       setShowDeleteModal(false)
       setUserToDelete(null)
     } catch (error) {
@@ -444,9 +442,9 @@ const AdminUsers = () => {
     try {
       // Comply with rules: allowed keys only, createdAt/updatedAt timestamps
       const newUser = {
-        name: payload.name.trim(),
-        branch: payload.branch?.trim() || null,
-        usn: payload.usn?.trim() || null,
+        name: String(payload.name || '').trim(),
+        branch: payload.branch ? String(payload.branch).trim() : null,
+        usn: payload.usn ? String(payload.usn).trim() : null,
         role: payload.role || 'User',
         certificates: [],
         createdAt: new Date(),
@@ -456,9 +454,9 @@ const AdminUsers = () => {
       const { addDoc, collection, doc, updateDoc } = await import('firebase/firestore')
       const { db } = await import('../../config/firebase')
       const docRef = await addDoc(collection(db, 'users'), newUser)
-      await updateDoc(doc(db, 'users', docRef.id), { email: payload.email.trim(), updatedAt: new Date() })
+      await updateDoc(doc(db, 'users', docRef.id), { email: String(payload.email || '').trim(), updatedAt: new Date() })
 
-      setUsers(prev => [{ id: docRef.id, ...newUser, email: payload.email.trim() }, ...prev])
+      setUsers(prev => [{ id: docRef.id, ...newUser, email: String(payload.email || '').trim() }, ...prev])
       toast.success('User created successfully')
       await logAdminActivity('user_created', { userId: docRef.id })
       setShowAddModal(false)
@@ -491,7 +489,7 @@ const AdminUsers = () => {
     link.href = url
     link.download = `users_${new Date().toISOString().split('T')[0]}.csv`
     link.click()
-    
+
     toast.success('Users exported successfully')
   }, [filteredUsers])
 

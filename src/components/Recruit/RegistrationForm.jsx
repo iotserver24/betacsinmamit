@@ -27,7 +27,7 @@ const RegistrationForm = ({
           </h2>
           <p className="text-gray-400">Fill in your details to join CSI NMAMIT</p>
         </div>
-        
+
         {/* Form Card */}
         <div className="bg-white/5 backdrop-blur-md rounded-3xl border border-white/10 p-8 shadow-2xl">
 
@@ -47,115 +47,16 @@ const RegistrationForm = ({
             </div>
           ) : (
             <form onSubmit={onSubmit}>
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Full Name */}
-                <div>
-                  <label className="block text-sm font-semibold mb-3 text-gray-300">
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={onInputChange}
-                    required
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
-                    placeholder="Enter your full name"
-                  />
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label className="block text-sm font-semibold mb-3 text-gray-300">
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={onInputChange}
-                    required
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
-                    placeholder="your.email@nmamit.in"
-                  />
-                </div>
-
-                {/* Phone */}
-                <div>
-                  <label className="block text-sm font-semibold mb-3 text-gray-300">
-                    Phone Number *
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={onInputChange}
-                    placeholder="9876543210"
-                    required
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
-                  />
-                </div>
-
-                {/* USN */}
-                <div>
-                  <label className="block text-sm font-semibold mb-3 text-gray-300">
-                    USN *
-                  </label>
-                  <input
-                    type="text"
-                    name="usn"
-                    value={formData.usn}
-                    onChange={onInputChange}
-                    placeholder="4NM21CS000"
-                    required
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
-                  />
-                </div>
-
-                {/* Branch */}
-                <div>
-                  <label className="block text-sm font-semibold mb-3 text-gray-300">
-                    Branch *
-                  </label>
-                  <select
-                    name="branch"
-                    value={formData.branch}
-                    onChange={onInputChange}
-                    required
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
-                  >
-                    <option value="">Select Branch</option>
-                    <option value="Computer Science">Computer Science</option>
-                    <option value="Information Science">Information Science</option>
-                    <option value="Electronics">Electronics</option>
-                    <option value="Mechanical">Mechanical</option>
-                    <option value="Civil">Civil</option>
-                    <option value="Electrical">Electrical</option>
-                  </select>
-                </div>
-
-                {/* Year */}
-                <div>
-                  <label className="block text-sm font-semibold mb-3 text-gray-300">
-                    Year *
-                  </label>
-                  <select
-                    name="year"
-                    value={formData.year}
-                    onChange={onInputChange}
-                    required
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
-                  >
-                    <option value="">Select Year</option>
-                    <option value="First Year">First Year</option>
-                    <option value="Second Year">Second Year</option>
-                    <option value="Third Year">Third Year</option>
-                    <option value="Final Year">Final Year</option>
-                  </select>
+              <div className="grid md:grid-cols-1 gap-6">
+                {/* Personal Details are now handled in Profile */}
+                <div className="bg-white/5 p-4 rounded-xl border border-white/10 mb-4">
+                  <p className="text-gray-300 text-sm">
+                    <span className="font-semibold text-primary-400">Note:</span> Your personal details (Name, USN, Branch, etc.) will be taken from your profile.
+                  </p>
                 </div>
 
                 {/* Why Join */}
-                <div className="md:col-span-2">
+                <div>
                   <label className="block text-sm font-semibold mb-3 text-gray-300">
                     Why do you want to join CSI? <span className="text-gray-500">(Optional)</span>
                   </label>
@@ -209,12 +110,12 @@ const RegistrationForm = ({
                     </>
                   )}
                 </button>
-                
+
                 <div className="mt-6 flex items-center justify-center gap-3 text-sm text-gray-400">
                   <Shield className="w-5 h-5" />
                   <span>Secure payment via Razorpay</span>
                 </div>
-                
+
                 <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-500">
                   <span>💡</span>
                   <span>A welcome email will be sent after successful payment</span>

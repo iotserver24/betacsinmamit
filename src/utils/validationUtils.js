@@ -38,7 +38,8 @@ export const validateRequiredFields = (formData, requiredFields) => {
   let isValid = true
 
   requiredFields.forEach(field => {
-    if (!formData[field] || formData[field].trim() === '') {
+    const value = formData[field]
+    if (!value || String(value).trim() === '') {
       errors[field] = `${field} is required`
       isValid = false
     }

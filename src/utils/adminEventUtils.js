@@ -12,11 +12,11 @@ export const validateEventForm = (eventData) => {
   const errors = {}
 
   // Required fields
-  if (!eventData.title || eventData.title.trim() === '') {
+  if (!eventData.title || String(eventData.title).trim() === '') {
     errors.title = 'Event title is required'
   }
 
-  if (!eventData.description || eventData.description.trim() === '') {
+  if (!eventData.description || String(eventData.description).trim() === '') {
     errors.description = 'Event description is required'
   }
 
@@ -30,7 +30,7 @@ export const validateEventForm = (eventData) => {
     errors.year = 'Year must be between 2019 and 2030'
   }
 
-  if (!eventData.venue || eventData.venue.trim() === '') {
+  if (!eventData.venue || String(eventData.venue).trim() === '') {
     errors.venue = 'Event venue is required'
   }
 
@@ -74,17 +74,17 @@ export const validateEventForm = (eventData) => {
  */
 export const formatEventDate = (date) => {
   if (!date) return 'N/A'
-  
+
   const dateObj = typeof date === 'string' ? new Date(date) : date
-  
+
   if (isNaN(dateObj.getTime())) return 'Invalid Date'
-  
-  const options = { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
+
+  const options = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
   }
-  
+
   return dateObj.toLocaleDateString('en-IN', options)
 }
 
@@ -95,12 +95,12 @@ export const formatEventDate = (date) => {
  */
 export const formatEventTime = (time) => {
   if (!time) return 'N/A'
-  
+
   const [hours, minutes] = time.split(':')
   const hour = parseInt(hours)
   const ampm = hour >= 12 ? 'PM' : 'AM'
   const displayHour = hour % 12 || 12
-  
+
   return `${displayHour}:${minutes} ${ampm}`
 }
 
@@ -117,7 +117,7 @@ export const getEventStatusColor = (status) => {
     postponed: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
     draft: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
   }
-  
+
   return statusColors[status] || statusColors.draft
 }
 
@@ -132,7 +132,7 @@ export const getEventCategoryColor = (category) => {
     PREVIOUS: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
     ONGOING: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300'
   }
-  
+
   return categoryColors[category] || categoryColors.PREVIOUS
 }
 
@@ -150,7 +150,7 @@ export const getEventTypeColor = (type) => {
     COMPETITION: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
     BOOTCAMP: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
   }
-  
+
   return typeColors[type] || typeColors.TEAM
 }
 
@@ -162,16 +162,16 @@ export const getEventTypeColor = (type) => {
 export const prepareEventData = (formData) => {
   return {
     ...formData,
-    title: formData.title.trim(),
-    description: formData.description.trim(),
-    brief: formData.brief?.trim() || '',
-    venue: formData.venue.trim(),
-    organizers: formData.organizers?.trim() || 'CSI NMAMIT',
+    title: String(formData.title || '').trim(),
+    description: String(formData.description || '').trim(),
+    brief: String(formData.brief || '').trim(),
+    venue: String(formData.venue || '').trim(),
+    organizers: String(formData.organizers || 'CSI NMAMIT').trim(),
     year: parseInt(formData.year),
     entryFee: parseFloat(formData.entryFee) || 0,
     participantCount: parseInt(formData.participantCount) || 0,
-    searchTitle: formData.title.toLowerCase().trim(),
-    searchDescription: formData.description.toLowerCase().trim(),
+    searchTitle: String(formData.title || '').toLowerCase().trim(),
+    searchDescription: String(formData.description || '').toLowerCase().trim(),
     contactPersons: formData.contactPersons || [],
     participants: formData.participants || [],
     tags: formData.tags || [],
@@ -193,7 +193,7 @@ export const filterAdminEvents = (events, filters) => {
   // Search filter
   if (filters.search) {
     const searchTerm = filters.search.toLowerCase()
-    filtered = filtered.filter(event => 
+    filtered = filtered.filter(event =>
       event.title?.toLowerCase().includes(searchTerm) ||
       event.description?.toLowerCase().includes(searchTerm) ||
       event.venue?.toLowerCase().includes(searchTerm) ||
@@ -385,7 +385,7 @@ export const exportEventsToCSV = (events) => {
 export const importEventsFromJSON = (jsonString) => {
   try {
     const events = JSON.parse(jsonString)
-    
+
     if (!Array.isArray(events)) {
       return {
         success: false,

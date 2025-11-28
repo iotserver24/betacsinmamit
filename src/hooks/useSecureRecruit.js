@@ -16,7 +16,7 @@ import {
 
 export const useSecureRecruit = () => {
   const navigate = useNavigate()
-  const { user, signInWithGoogle } = useAuth()
+  const { user, signInWithGoogle, getUserData } = useAuth()
   const [selectedPlan, setSelectedPlan] = useState('one-year')
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
@@ -24,13 +24,8 @@ export const useSecureRecruit = () => {
   const lastPaymentTime = useRef(null)
 
   // Initialize form with sanitized user data
+  // Initialize form with sanitized user data
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    phone: '',
-    branch: '',
-    year: '',
-    usn: '',
     whyJoin: ''
   })
 
@@ -77,7 +72,7 @@ export const useSecureRecruit = () => {
         break
       case 'usn':
         if (value && !isValidUSN(value)) {
-          error = 'Invalid USN format (e.g., 4NM21CS001)'
+          error = 'Invalid USN format (must start with NNM or NU)'
         }
         break
       default:
@@ -92,41 +87,34 @@ export const useSecureRecruit = () => {
     }
   }
 
-  // Complete form validation
-  const validateForm = () => {
-    const newErrors = {}
+  // Check if profile is complete
+  const checkProfileCompletion = async () => {
+    if (!user) return false
 
-    // Required field validation
-    const requiredFields = {
-      name: 'Full name',
-      email: 'Email',
-      phone: 'Phone number',
-      branch: 'Branch',
-      year: 'Year',
-      usn: 'USN'
-    }
-
-    for (const [field, label] of Object.entries(requiredFields)) {
-      if (!formData[field] || formData[field].trim() === '') {
-        newErrors[field] = `${label} is required`
+    // Fetch fresh data to ensure we have the latest updates
+    let userData = user
+    try {
+      const freshData = await getUserData(user.uid)
+      if (freshData) {
+        userData = { ...user, ...freshData }
       }
+    } catch (error) {
+      console.error('Error fetching fresh user data:', error)
     }
 
-    // Format validation
-    if (formData.email && !isValidEmail(formData.email)) {
-      newErrors.email = 'Invalid email format'
+    const requiredFields = ['phone', 'branch', 'year', 'usn']
+    const missingFields = requiredFields.filter(field => {
+      // Check both root level and profile object
+      const value = userData[field] || userData.profile?.[field]
+      return !value || String(value).trim() === ''
+    })
+
+    if (missingFields.length > 0 || !userData.name) {
+      console.log('Profile incomplete. Missing:', missingFields)
+      console.log('UserData:', userData)
     }
 
-    if (formData.phone && !isValidPhone(formData.phone)) {
-      newErrors.phone = 'Invalid phone number'
-    }
-
-    if (formData.usn && !isValidUSN(formData.usn)) {
-      newErrors.usn = 'Invalid USN format'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    return missingFields.length === 0 && userData.name
   }
 
   // Rate limiting for payment attempts
@@ -156,9 +144,34 @@ export const useSecureRecruit = () => {
         return
       }
 
-      // Validate form
-      if (!validateForm()) {
-        toast.error('Please fix the errors in the form')
+      // Check if user already has an active subscription
+      if (user.membership?.status === 'active') {
+        toast.error('You already have an active subscription')
+        return
+      }
+
+      // Fetch fresh user data to ensure we have the latest profile updates
+      let userData = user
+      try {
+        const freshData = await getUserData(user.uid)
+        if (freshData) {
+          userData = { ...user, ...freshData }
+        }
+      } catch (error) {
+        console.error('Error fetching fresh user data:', error)
+      }
+
+      // Check profile completion using fresh data
+      const requiredFields = ['phone', 'branch', 'year', 'usn']
+      const missingFields = requiredFields.filter(field => {
+        const value = userData[field] || userData.profile?.[field]
+        return !value || String(value).trim() === ''
+      })
+
+      if (missingFields.length > 0 || !userData.name) {
+        const missing = missingFields.join(', ')
+        toast.error(`Please complete your profile. Missing: ${missing}`)
+        navigate('/profile?returnTo=/recruit')
         return
       }
 
@@ -171,8 +184,19 @@ export const useSecureRecruit = () => {
       paymentAttempts.current++
       lastPaymentTime.current = Date.now()
 
+      // Prepare payment data from fresh user data
+      const paymentData = {
+        name: userData.name,
+        email: userData.email,
+        phone: userData.phone || userData.profile?.phone,
+        branch: userData.branch || userData.profile?.branch,
+        year: userData.year || userData.profile?.year,
+        usn: userData.usn || userData.profile?.usn,
+        whyJoin: formData.whyJoin
+      }
+
       // Sanitize form data before sending
-      const sanitizedData = sanitizeFormData(formData)
+      const sanitizedData = sanitizeFormData(paymentData)
 
       // Load Razorpay script
       const scriptLoaded = await paymentService.loadRazorpayScript()
@@ -239,6 +263,6 @@ export const useSecureRecruit = () => {
     handleInputChange,
     handleSubmit,
     signInWithGoogle: secureSignIn,
-    validateForm
+    checkProfileCompletion
   }
 }
